@@ -35,9 +35,9 @@ const RequestModalAudit = ({ requestId, onClose }) => {
     if (!requestDetails) return null;
 
     return (
-        <div id="modal-overlay" className="fixed inset-0 bg-gradient-to-br from-yellow-500 via-black to-white bg-opacity-90 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
-                <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-800" onClick={onClose}>
+        <div id="modal-overlay" className="fixed inset-0 flex justify-center items-center z-50" style={{ background: 'rgba(2,6,23,0.56)' }}>
+            <div className="surface rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+                <button className="absolute top-2 right-2 muted" onClick={onClose}>
                     <X size={24} />
                 </button>
                 <h2 className="text-xl font-bold mb-4">Request Details</h2>
@@ -59,29 +59,17 @@ const RequestModalAudit = ({ requestId, onClose }) => {
                     
                     <p>
                         <strong>Status:</strong>
-                        <span className={`ml-2 px-2 py-1 rounded ${
-                            requestDetails.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            requestDetails.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            requestDetails.status === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            requestDetails.status === 'returned' ? 'bg-purple-100 text-purple-800' :
-                            'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`ml-2 ${requestDetails.status === 'approved' ? 'badge badge-success' : requestDetails.status === 'rejected' ? 'badge badge-danger' : requestDetails.status === 'dispatched' ? 'badge badge-success' : requestDetails.status === 'returned' ? 'badge' : 'badge badge-warning'}`}>
                             {requestDetails.status}
                         </span>
-                        <span className={`ml-2 px-2 py-1 rounded ${
-                            requestDetails.completionStatus === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            requestDetails.completionStatus === 'returned' ? 'bg-purple-100 text-purple-800' :
-                            'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`ml-2 ${requestDetails.completionStatus === 'dispatched' ? 'badge badge-success' : requestDetails.completionStatus === 'returned' ? 'badge' : 'badge badge-warning'}`}>
                             {requestDetails.completionStatus}
                         </span>
                     </p>
                     <p><strong>Email:</strong> {requestDetails.email}</p>
                 </div>
                 <div className="mt-6 text-right">
-                    <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">
-                        Close
-                    </button>
+                    <button onClick={onClose} className="btn btn-ghost">Close</button>
                 </div>
             </div>
         </div>

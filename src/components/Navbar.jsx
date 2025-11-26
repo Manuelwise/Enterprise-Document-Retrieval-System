@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaUserCircle } from 'react-icons/fa';
-import logo from '../assets/logo.png';
+import { FaUserCircle, FaMoon, FaSun } from 'react-icons/fa';
+import { useTheme } from '../context/ThemeContext';
 import NotificationBell from '../components/NotificationBell';
 import axios from 'axios';
 
 const Navbar = () => {
     const { isAuthenticated, logout, username, token, } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
@@ -94,74 +95,95 @@ const Navbar = () => {
 
 
     return (
-        <nav className={`fixed top-0 left-0 w-full bg-yellow-500 text-white z-50 transition-shadow duration-300 ${hasShadow ? 'shadow-lg' : ''}`}>
+        <nav
+            className={`fixed top-0 left-0 w-full z-50 transition-shadow duration-300 ${hasShadow ? 'shadow-lg' : ''}`}
+            style={{ background: 'var(--nav-bg)', color: 'var(--nav-text)' }}
+        >
             <div className="container mx-auto px-2">
                 <div className="flex justify-between items-center h-16">
                     {/* Left Side - Logo and Links */}
-                    <div className="flex items-center space-x-8">
-                    
-                        <Link to="/">
-                            <img src={logo} alt="GNPC Logo" className="h-20" />
+                    <div className="flex items-center space-x-6">
+                        <Link to="/" className="flex items-center space-x-3">
+                            {/* Inline modern minimal SVG logo */}
+                            <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                <rect width="48" height="48" rx="10" fill="url(#g)" />
+                                <path d="M14 33L24 15L34 33H14Z" fill="white" opacity="0.95" />
+                                <defs>
+                                    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stopColor="#6C5CE7" />
+                                        <stop offset="100%" stopColor="#00BFA6" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <span className="text-lg font-semibold ml-1" style={{ color: 'var(--nav-text)' }}>Enterprise </span>
                         </Link>
                         <div className="hidden md:flex space-x-4">
-                            <Link to="/" className={`px-3 py-2 rounded-md ${location.pathname === '/' ? 'bg-yellow-600' : 'hover:bg-gray-400'}`}>
+                            <Link to="/" className={`px-3 py-2 rounded-md ${location.pathname === '/' ? 'nav-link-active' : 'hover:bg-white/5'}`}>
                                 Home
                             </Link>
-                            <Link to="/request" className={`px-3 py-2 rounded-md ${location.pathname === '/request' ? 'bg-yellow-600' : 'hover:bg-gray-400'}`}>
-                                Request Files
-                            </Link>
-                            <Link to="/admin/dashboard" className={`px-3 py-2 rounded-md ${location.pathname === '/admin/dashboard' ? 'bg-yellow-600' : 'hover:bg-gray-400'}`}>
-                                Dashboard
-                            </Link>
+                            {isAuthenticated && (
+                                <Link 
+                                    to={username === 'approval_officer' ? '/admin/dashboard' : '/user/dashboard'}
+                                    className={`px-3 py-2 rounded-md ${location.pathname.includes('dashboard') ? 'nav-link-active' : 'hover:bg-white/5'}`}
+                                >
+                                    Dashboard
+                                </Link>
+                            )}
                         </div>
                     </div>
 
                     {/* Right Side - Time, Notifications, User Dropdown */}
-                    <div className="flex items-center space-x-6">
-                        <span className="text-sm font-semibold">{formattedTime}</span>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-sm font-semibold" style={{ color: 'var(--nav-text)' }}>{formattedTime}</span>
 
+                        <button 
+                            onClick={toggleTheme}
+                            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                            className="p-2 rounded-md hover:opacity-90 transition-colors duration-200"
+                            style={{ color: 'var(--nav-text)' }}
+                            aria-label={`Toggle ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                        >
+                            {theme === 'dark' ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
+                        </button>
                         {isAuthenticated ? (
-                            <div className="flex items-center space-x-4 cursor-pointer">     
+                            <div className="flex items-center space-x-3 cursor-pointer">     
                                 {/* Notification Bell - Show count of pending requests */}
                                 <div ref={bellRef}>
-                                <NotificationBell 
-                                    notificationCount={notifications.filter(n => !n.isRead).length} 
-                                    notifications={notifications} 
-                                    setNotifications={setNotifications}
-                                    isOpen={notifDropdownOpen}
-                                    setIsOpen={setNotifDropdownOpen}
-                                />
+                                    <NotificationBell 
+                                        notificationCount={notifications.filter(n => !n.isRead).length} 
+                                        notifications={notifications} 
+                                        setNotifications={setNotifications}
+                                        isOpen={notifDropdownOpen}
+                                        setIsOpen={setNotifDropdownOpen}
+                                    />
                                 </div>
 
                                 {/* User Dropdown */}
                                 <div className="relative" ref={dropdownRef}>
-                                <div 
-                                    className="flex items-center space-x-2 cursor-pointer" 
-                                    onClick={() => setDropdownOpen(!dropdownOpen)} 
-                                    ref={adminButtonRef}
-                                >
-                                    <FaUserCircle size={24} />
-                                    <span>{username || 'Admin'}</span>
-                                </div>
-                                {dropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg z-50">
-                                    <Link to="/admin/new-user" className="block px-4 py-2 hover:bg-gray-100">
-                                        Add New User
-                                    </Link>
-                                    <button onClick={handleLogout} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                                        Logout
-                                    </button>
+                                    <div 
+                                        className="flex items-center space-x-2 cursor-pointer" 
+                                        onClick={() => setDropdownOpen(!dropdownOpen)} 
+                                        ref={adminButtonRef}
+                                        style={{ color: 'var(--nav-text)' }}
+                                    >
+                                        <FaUserCircle size={22} />
+                                        <span className="capitalize">{username || 'User'}</span>
                                     </div>
-                                )}
+                                    {dropdownOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white/5 backdrop-blur-sm text-white rounded-md shadow-lg z-50 surface">
+                                            <Link to="/admin/new-user" className="block px-4 py-2 hover:bg-white/5">
+                                                Add New User
+                                            </Link>
+                                            <button onClick={handleLogout} className="block w-full text-left px-4 py-2 hover:bg-white/5">
+                                                Logout
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
-                            <Link to="/admin/login" className="bg-white text-yellow-600 px-4 py-2 rounded hover:bg-yellow-100">
-<<<<<<< HEAD
-                                Login
-=======
+                            <Link to="/admin/login" className="btn btn-ghost">
                                 Admin Login
->>>>>>> b56182316c66f8bac9af551575b1b95d19810da6
                             </Link>
                         )}
                     </div>

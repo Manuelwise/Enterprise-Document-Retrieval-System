@@ -3,6 +3,14 @@ import { format } from 'date-fns';
 import { X } from 'lucide-react';
 
 const RequestModal = ({ request, onClose }) => {
+    const getBadgeClass = (r) => {
+        const s = (r && (r.completionStatus || r.status)) || '';
+        if (s === 'dispatched') return 'badge badge-success';
+        if (s === 'returned') return 'badge';
+        if (s === 'approved') return 'badge badge-success';
+        if (s === 'rejected') return 'badge badge-danger';
+        return 'badge badge-warning';
+    };
     if (!request) return null;
 
     const handleOverlayClick = (e) => {
@@ -14,13 +22,15 @@ const RequestModal = ({ request, onClose }) => {
     return (
         <div 
             id="modal-overlay"
-            className="fixed inset-0  bg-gradient-to-br from-yellow-500 via-black to-white bg-opacity-90 flex justify-center items-center z-50"
+            className="fixed inset-0 flex justify-center items-center z-50"
+            style={{ background: 'rgba(2,6,23,0.56)' }}
             onClick={handleOverlayClick}
         >
-            <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+            <div className="surface rounded-lg shadow-lg max-w-lg w-full p-6 relative">
                 <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                    className="absolute top-2 right-2 muted"
                     onClick={onClose}
+                    style={{ background: 'transparent' }}
                 >
                     <X size={24} />
                 </button>
@@ -43,20 +53,10 @@ const RequestModal = ({ request, onClose }) => {
                     <p><strong>Document Delivery Status:</strong> {request.deliveryStatus}</p>
                     <p>
                         <strong>Status:</strong>
-                        <span className={`ml-2 px-2 py-1 rounded ${
-                            request.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            request.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            request.completionStatus === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            request.completionStatus === 'returned' ? 'bg-purple-100 text-purple-800' :
-                            'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`ml-2 ${getBadgeClass(request)}`}>
                             {request.status}
                         </span>
-                        <span className={`ml-2 px-2 py-1 rounded ${
-                            request.completionStatus === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                            request.completionStatus === 'returned' ? 'bg-purple-100 text-purple-800' :
-                            ''
-                        }`}>
+                        <span className={`ml-2 ${ request.completionStatus ? getBadgeClass({ ...request, status: request.completionStatus, completionStatus: null }) : '' }`}>
                             {request.completionStatus}
                         </span>
                     </p>
@@ -66,7 +66,7 @@ const RequestModal = ({ request, onClose }) => {
                 <div className="mt-6 text-right">
                     <button
                         onClick={onClose}
-                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700"
+                        className="btn btn-ghost"
                     >
                         Close
                     </button>

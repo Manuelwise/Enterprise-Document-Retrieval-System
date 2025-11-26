@@ -34,10 +34,11 @@ const StatusChangeModal = ({ id, status, onSubmit, onClose }) => {
     return (
         <div
           id="modal-overlay"
-          className="fixed inset-0 bg-gradient-to-br from-yellow-500 via-black to-white bg-opacity-90 flex justify-center items-center z-50"
+          className="fixed inset-0 flex justify-center items-center z-50"
+          style={{ background: 'rgba(2,6,23,0.56)' }}
           onClick={handleOverlayClick}
         >
-          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+          <div className="surface rounded-lg shadow-lg max-w-lg w-full p-6 relative">
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-black"
               onClick={onClose}
@@ -62,21 +63,8 @@ const StatusChangeModal = ({ id, status, onSubmit, onClose }) => {
                 onChange={(e) => setInput(e.target.value)}
               />
               <div className="mt-4 flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="bg-gray-300 text-black px-4 py-2 rounded"
-                  disabled={isLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Submitting...' : 'Submit'}
-                </button>
+                <button type="button" onClick={onClose} className="btn btn-ghost" disabled={isLoading}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={isLoading}>{isLoading ? 'Submitting...' : 'Submit'}</button>
               </div>
             </form>
           </div>

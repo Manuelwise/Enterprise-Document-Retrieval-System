@@ -1,418 +1,498 @@
-// AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { FileText, Users, CheckCircle, XCircle, Truck, ArrowLeftCircle } from 'lucide-react';
-import DashboardStats from '../components/DashboardStats';
-import SearchBar from '../components/SearchBar';
-import LoadingSpinner from '../components/LoadingSpinner';
-import Alert from '../components/Alert';
-import Pagination from '../components/Pagination';
-import RequestModal from '../components/RequestModal';
-import DateRangeFilter from '../components/DateRangeFilter';
-import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
-import axios from 'axios';
-import featureImage from '../assets/image/dashboard2.webp';
-import StatusChangeModal from '../components/StatusChangeModal';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import adminAPI from '../services/adminAPI';
+import { 
+  LayoutDashboard, 
+  Users, 
+  FileText, 
+  Settings, 
+  LogOut,
+  X,
+  BarChart2,
+  CheckCircle,
+  AlertCircle,
+  ListChecks,
+  Clock,
+  Activity,
+  Edit,
+  Trash2,
+  LogIn,
+  XCircle
+} from 'lucide-react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AuditLogs from './AuditLogs';
+import UsersGrid from './UsersGrid';
+import AdminRequests from './AdminRequests';
+import AdminSidebar from '../components/admin/AdminSidebar';
+import AdminHeader from '../components/admin/AdminHeader';
+import AdminStats from '../components/admin/AdminStats';
+import RecentActivity from '../components/admin/RecentActivity';
+import RequestCard from '../components/admin/RequestCard';
 
 const AdminDashboard = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [alert, setAlert] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [requests, setRequests] = useState([]);
-    const [selectedRequest, setSelectedRequest] = useState(null);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [showStatusModal, setShowStatusModal] = useState(false);
-<<<<<<< HEAD
-    const [pendingStatusChange, setPendingStatusChange] = useState(null);
-=======
-    const [pendingStatusChange, setPendingStatusChange] = useState(null); // { id, newStatus }
+  const { theme } = useTheme();
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dispatchOfficers, setDispatchOfficers] = useState([
+    { id: '1', name: 'John Doe' },
+    { id: '2', name: 'Jane Smith' },
+    { id: '3', name: 'Mike Johnson' },
+  ]);
+  
+  const [recentRequests, setRecentRequests] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [activeSessions, setActiveSessions] = useState(0);
+  
+  const [stats, setStats] = useState([
+    { name: 'Total Requests', value: '0', change: '+0%', changeType: 'increase', icon: FileText },
+    { name: 'Pending Approval', value: '0', change: '+0%', changeType: 'increase', icon: Clock },
+    { name: 'Users', value: '0', change: '+0%', changeType: 'increase', icon: Users },
+    { name: 'Avg. Response Time', value: '0h', change: '-0h', changeType: 'decrease', icon: Clock },
+  ]);
+
+  // Mock activities data (fallback)
+  const mockActivities = [
+    {
+      id: '1',
+      user: 'System',
+      action: 'system_start',
+      details: 'System initialized',
+      time: 'Just now',
+      status: 'info',
+      icon: Activity
+    },
+    {
+      id: '2',
+      user: user?.name || 'Admin',
+      action: 'user_login',
+      details: 'User logged in',
+      time: '2m ago',
+      status: 'success',
+      icon: LogIn
+    }
+  ];
+
+ // Fetch all necessary data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch data in parallel with error handling for each request
+        const [usersResponse, recordsResponse, sessionsResponse, activitiesResponse] = await Promise.all([
+          adminAPI.getAllUsers().catch(e => {
+            console.error('Error fetching users:', e);
+            return { data: [] };
+          }),
+          adminAPI.getRecords().catch(e => {
+            console.error('Error fetching records:', e);
+            return { data: [] };
+          }),
+          adminAPI.getActiveSessions().catch(e => {
+            console.error('Error fetching sessions:', e);
+            return { count: 0 };
+          }),
+          // Use mock activities for now since the endpoint doesn't exist
+          Promise.resolve({ data: mockActivities }).catch(e => {
+            console.error('Error fetching activities:', e);
+            return { data: mockActivities }; // Fallback to mock data
+          })
+        ]);
+
+        // Process users
+        const officers = (usersResponse.data || []).filter(user => user.role === 'officer');
+        setDispatchOfficers(officers);
+
+        // Process records (requests)
+        const records = Array.isArray(recordsResponse.data) ? recordsResponse.data : [];
+        setRecentRequests(records);
+        
+        // Process activities
+        const activities = activitiesResponse.data || [];
+        const formattedActivities = activities.map(activity => ({
+          id: activity._id || Math.random().toString(36).substr(2, 9),
+          user: activity.userId?.name || 'System',
+          action: activity.action || 'Unknown action',
+          details: activity.details || '',
+          time: formatTimeAgo(activity.createdAt),
+          status: getActivityStatus(activity.action),
+          icon: getActivityIcon(activity.action)
+        }));
+        
+        // Use mock data if no activities are returned
+        setRecentActivity(formattedActivities.length > 0 ? formattedActivities : mockActivities);
+
+        // Process active sessions
+        setActiveSessions(sessionsResponse.count || 0);
+
+        // Update stats
+        const activeUsers = Array.isArray(usersResponse.data) ? usersResponse.data.filter(u => u.status === 'active') : [];
+        const pendingRequests = records.filter(r => r.status === 'pending');
+        
+        setStats([
+          { ...stats[0], value: records.length.toString() },
+          { 
+            ...stats[1], 
+            value: activeUsers.length.toString()
+          },
+          { 
+            ...stats[2], 
+            value: pendingRequests.length.toString()
+          },
+          { ...stats[3], value: (sessionsResponse.count || 0).toString() }
+        ]);
+
+      } catch (error) {
+        console.error('Error in dashboard data processing:', error);
+        setError('Some dashboard data could not be loaded');
+        toast.error('Some dashboard data could not be loaded');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user?.name]); // Add user.name as dependency
+
+// Helper functions
+const formatTimeAgo = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) return `${interval}y ago`;
+  
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) return `${interval}mo ago`;
+  
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) return `${interval}d ago`;
+  
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) return `${interval}h ago`;
+  
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) return `${interval}m ago`;
+  
+  return 'Just now';
+};
+
+const getActivityIcon = (action) => {
+  if (!action) return Activity;
+  
+  const actionLower = action.toLowerCase();
+  
+  if (actionLower.includes('login') || actionLower.includes('logout')) return LogIn;
+  if (actionLower.includes('create')) return FileText;
+  if (actionLower.includes('update') || actionLower.includes('edit')) return Edit;
+  if (actionLower.includes('delete') || actionLower.includes('remove')) return Trash2;
+  if (actionLower.includes('approve') || actionLower.includes('success')) return CheckCircle;
+  if (actionLower.includes('reject') || actionLower.includes('deny')) return XCircle;
+  
+  return Activity;
+};
+
+const getActivityStatus = (action) => {
+  if (!action) return 'info';
+  
+  const actionLower = action.toLowerCase();
+  
+  // Map common action types to statuses
+  if (actionLower.includes('error') || actionLower.includes('fail')) return 'error';
+  if (actionLower.includes('login') || actionLower.includes('approve') || actionLower.includes('success')) return 'success';
+  if (actionLower.includes('delete') || actionLower.includes('reject')) return 'error';
+  if (actionLower.includes('create') || actionLower.includes('update')) return 'info';
+  
+  return 'info';
+};
+
+const handleRequestAction = async (actionData) => {
+  try {
+    setIsLoading(true);
     
-
->>>>>>> b56182316c66f8bac9af551575b1b95d19810da6
-
-    const fetchRequests = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        try {
-            const response = await axios.get('http://localhost:5000/api/requests', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const sortedRequests = response.data.sort((a, b) => new Date(b.returnDate) - new Date(a.returnDate));
-            setRequests(sortedRequests);
-        } catch (error) {
-            setAlert({ type: 'error', message: 'Failed to fetch requests' });
-        }
-    };
-
-    useEffect(() => {
-        fetchRequests();
-    }, []);
-
-    const handleStatusModalSubmit = async ({ id, status, additionalInfo, reasonForRejection }) => {
-        setIsLoading(true);
-        try {
-<<<<<<< HEAD
-            const token = localStorage.getItem('token');
-            await axios.patch(
-                `http://localhost:5000/api/requests/${id}`,
-                { status, additionalInfo, reasonForRejection },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            setAlert({ type: 'success', message: `Status updated to ${status}` });
-=======
-          const token = localStorage.getItem('token');
-          await axios.patch(
-            `http://localhost:5000/api/requests/${id}`,
-            { status, additionalInfo, reasonForRejection },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-      
-          setAlert({ type: 'success', message: `Status updated to ${status}` });
-          fetchRequests();
-        } catch (error) {
-          setAlert({ type: 'error', message: 'Failed to update status' });
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      
-
-    const statusReturned = async (id, newStatus) => {
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:5000/api/requests/returned/${id}`, { completionStatus: newStatus }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            setAlert({ type: 'success', message: `Status updated to ${newStatus}` });
->>>>>>> b56182316c66f8bac9af551575b1b95d19810da6
-            fetchRequests();
-        } catch (error) {
-            setAlert({ type: 'error', message: 'Failed to update status' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-<<<<<<< HEAD
-=======
-    const statusDispatched = async (id, newStatus) => {
-        setIsLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:5000/api/requests/dispatched/${id}`, { completionStatus: newStatus }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            setAlert({ type: 'success', message: `Status updated to ${newStatus}` });
-            fetchRequests();    
-        } catch (error) {
-            setAlert({ type: 'error', message: 'Failed to update status' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
->>>>>>> b56182316c66f8bac9af551575b1b95d19810da6
-    const ITEMS_PER_PAGE = 3;
-
-    const filteredRequests = requests.filter(request => {
-        const matchesSearch =
-            (request.officerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                request.documentTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                request.email?.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        const requestDate = new Date(request.returnDate);
-        const isWithinDateRange =
-            (!startDate || requestDate >= new Date(startDate)) &&
-            (!endDate || requestDate <= new Date(endDate));
-
-        return matchesSearch && isWithinDateRange;
+    const response = await adminAPI.updateRecord(actionData.requestId, {
+      status: actionData.action === 'approve' ? 'approved' : 'rejected',
+      assignedTo: actionData.dispatchOfficerId,
+      notes: actionData.reason,
+      updatedBy: user.id
     });
+    
+    setRecentRequests(prev => 
+      prev.map(req => req.id === actionData.requestId ? response.data : req)
+    );
 
-    const paginatedRequests = filteredRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-<<<<<<< HEAD
-    // Function to get appropriate dropdown options based on request status
-    const getDropdownOptions = (request) => {
-        // Admin should only see Approve/Reject for pending requests
-        // For already approved/rejected requests, show current status only
-        if (request.status === 'pending') {
-            return (
-                <select
-                    value="pending"
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                        const selectedValue = e.target.value;
-                        if (selectedValue === 'approved' || selectedValue === 'rejected') {
-                            setPendingStatusChange({ id: request._id, newStatus: selectedValue });
-                            setShowStatusModal(true);
-                        }
-                    }}
-                    className="p-2 border rounded"
-                >
-                    <option value="pending">Select Action</option>
-                    <option value="approved">Approve</option>
-                    <option value="rejected">Reject</option>
-                </select>
-            );
-        } else {
-            // For non-pending requests, show read-only status
-            return (
-                <span className={`px-3 py-2 rounded text-sm font-medium ${
-                    request.completionStatus === 'dispatched' ? 'bg-blue-100 text-blue-800' :
-                    request.completionStatus === 'returned' ? 'bg-purple-100 text-purple-800' :
-                    request.status === 'approved' ? 'bg-green-100 text-green-800' :
-                    request.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                }`}>
-                    {request.completionStatus || request.status}
-                </span>
-            );
-        }
+    const actionText = actionData.action === 'approve' ? 'approved' : 'rejected';
+    const newActivity = {
+      id: Date.now(),
+      user: user?.name || 'Admin',
+      action: `${actionText} request #${actionData.requestId}`,
+      time: 'Just now',
+      icon: actionData.action === 'approve' ? CheckCircle : AlertCircle,
+      status: actionText === 'approved' ? 'success' : 'error'
     };
+    
+    setRecentActivity(prev => [newActivity, ...prev].slice(0, 50));
+    toast.success(`Request ${actionText} successfully`);
+  } catch (error) {
+    console.error('Error updating request:', error);
+    toast.error(`Failed to update request: ${error.response?.data?.message || error.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-    return (
-        <div
-            className="bg-cover bg-center"
-            style={{
-                backgroundImage: `url(${featureImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                opacity: 0.9,
-            }}
-        >
-            <div className="container mx-auto px-4 py-8">
-                {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
+  // Quick actions for the dashboard
+  const quickActions = [
+    { 
+      title: 'Users', 
+      description: 'Manage user accounts', 
+      icon: Users,
+      href: '/admin/users',
+      iconColor: 'text-green-500',
+      bgColor: 'bg-green-50 dark:bg-green-900/30'
+    },
+    { 
+      title: 'Reports', 
+      description: 'View and generate reports', 
+      icon: BarChart2,
+      href: '/admin/reports',
+      iconColor: 'text-yellow-500',
+      bgColor: 'bg-yellow-50 dark:bg-yellow-900/30'
+    },
+    { 
+      title: 'Activities', 
+      description: 'View system activities', 
+      icon: ListChecks,
+      href: '/admin/activities',
+      iconColor: 'text-blue-500',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/30'
+    }
+  ];
 
-                <div className="mb-8">
-                    <h2 className="text-4xl font-bold mb-6">DoRS Dashboard</h2>
-                    <DashboardStats
-                        stats={[
-                            { title: 'Total Requests', value: requests.length, icon: FileText, link: '/admin/reports' },
-                            { title: 'Pending Requests', value: requests.filter(r => r.status === 'pending').length, icon: Users },
-                            { title: 'Approved', value: requests.filter(r => r.status === 'approved').length, icon: CheckCircle },
-                            { title: 'Rejected', value: requests.filter(r => r.status === 'rejected').length, icon: XCircle },
-                            { title: 'Dispatched', value: requests.filter(r => r.completionStatus === 'dispatched').length, icon: Truck },
-                            { title: 'Returned', value: requests.filter(r => r.completionStatus === 'returned').length, icon: ArrowLeftCircle }
-                        ]}
-                    />
-                </div>
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
-                <div className="mb-4">
-                    <Link to="/admin/users" className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        View Audit Logs
+  // Handle user logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Failed to log out');
+    }
+  };
+
+  // Handle request selection
+  const handleSelectRequest = (request) => {
+    // Navigate to the request details page with the request ID
+    navigate(`/admin/requests/${request.id}`);
+  };
+
+  // Navigation items
+  const navigation = [
+    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, current: location.pathname === '/admin/dashboard' },
+  ];
+
+  return (
+    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Mobile sidebar */}
+        <div className={`fixed inset-0 z-40 lg:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={toggleMobileMenu}></div>
+          <div className="relative flex-1 flex flex-col w-80 max-w-xs bg-white dark:bg-gray-800">
+            <div className="absolute top-0 right-0 -mr-14 p-1">
+              <button
+                type="button"
+                className="flex items-center justify-center h-12 w-12 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                onClick={toggleMobileMenu}
+              >
+                <X className="h-6 w-6 text-white" />
+                <span className="sr-only">Close sidebar</span>
+              </button>
+            </div>
+            <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+              <div className="flex-shrink-0 flex items-center px-4">
+                <h1 className="text-xl font-bold dark:text-white">Admin Panel</h1>
+              </div>
+              <nav className="mt-5 px-2 space-y-1">
+                {navigation.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`${
+                        isActive
+                          ? 'bg-gray-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
+                      } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon
+                        className={`mr-3 flex-shrink-0 h-6 w-6 ${
+                          isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      {item.name}
                     </Link>
-                </div>
-
-                <div className="bg-white rounded-lg shadow p-6">
-                    <div className="space-y-4 mb-6">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-bold">File Access Requests</h2>
-                            <SearchBar onSearch={setSearchTerm} />
-                        </div>
-                        <DateRangeFilter
-                            startDate={startDate}
-                            endDate={endDate}
-                            onStartDateChange={setStartDate}
-                            onEndDateChange={setEndDate}
-                        />
-                    </div>
-
-                    {isLoading ? <LoadingSpinner /> : (
-                        <div className="flex flex-col space-y-4">
-                            {paginatedRequests.map((request, index) => (
-                                <div
-                                    key={request._id}
-                                    className="border p-4 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out transform hover:scale-105 flex justify-between items-center cursor-pointer"
-                                    onClick={() => setSelectedRequest(request)}
-                                >
-                                    <div className="flex-1">
-                                        <span className="font-bold">
-                                            {index + 1}. {format(new Date(request.returnDate), 'dd MMMM, yyyy')}
-                                        </span>
-                                        <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                                            (request.completionStatus === 'dispatched') ? 'bg-blue-100 text-blue-800' :
-                                            (request.completionStatus === 'returned') ? 'bg-purple-100 text-purple-800' :
-                                            (request.status === 'approved') ? 'bg-green-100 text-green-800' :
-                                            (request.status === 'rejected') ? 'bg-red-100 text-red-800' :
-                                            'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                            {request.completionStatus || request.status}
-                                        </span>
-
-                                        <div className="mt-2">
-                                            <p>Officer: {request.officerName}</p>
-                                            <p>Supervisor: {request.supervisorName}</p>
-                                            <p>Email: {request.email}</p>
-                                        </div>
-                                    </div>
-
-                                    {getDropdownOptions(request)}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <Pagination currentPage={currentPage} totalPages={Math.ceil(filteredRequests.length / ITEMS_PER_PAGE)} onPageChange={setCurrentPage} />
-                </div>
-
-                {selectedRequest && (
-                    <RequestModal request={selectedRequest} onClose={() => setSelectedRequest(null)} />
-                )}
-                
-                {showStatusModal && pendingStatusChange && (
-                    <StatusChangeModal
-                        id={pendingStatusChange.id}
-                        status={pendingStatusChange.newStatus}
-                        onSubmit={handleStatusModalSubmit}
-                        onClose={() => setShowStatusModal(false)}
-                    />
-                )}
+                  );
+                })}
+              </nav>
             </div>
+            <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign out
+              </button>
+            </div>
+          </div>
         </div>
-    );
-};
 
-export default AdminDashboard;
-=======
-    return (
-        <div
-        className="bg-cover bg-center"
-        style={{
-            backgroundImage: `url(${featureImage})`,
-            backgroundSize: 'cover', // Ensures the whole image fits inside the div
-            backgroundPosition: 'center', // Centers the image within the div
-            backgroundRepeat: 'no-repeat', // Prevents tiling if the image is smaller than the div
-            opacity: 0.9,
-            // height: '    calc(100vh - 100px)', // Adjust this value based on your navbar and footer height
-        }}
-    >
-        <div className="container mx-auto px-4 py-8">
-            {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
-
-            <div className="mb-8">
-                <h2 className="text-4xl font-bold mb-6">DoRS Dashboard</h2>
-                <DashboardStats
-                 stats={[
-                    { title: 'Total Requests', value: requests.length, icon: FileText, link: '/admin/reports' },
-                    { title: 'Pending Requests', value: requests.filter(r => r.status === 'pending').length, icon: Users },
-                    { title: 'Approved', value: requests.filter(r => r.status === 'approved').length, icon: CheckCircle },
-                    { title: 'Rejected', value: requests.filter(r => r.status === 'rejected').length, icon: XCircle },
-                    { title: 'Dispatched', value: requests.filter(r => r.completionStatus === 'dispatched').length, icon: Truck },
-                    { title: 'Returned', value: requests.filter(r => r.completionStatus === 'returned').length, icon: ArrowLeftCircle }
-                  ]}
-                />
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto focus:outline-none bg-gray-50 dark:bg-gray-900">
+          <div className="py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+              <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+               
+              </div>
             </div>
 
-            <div className="mb-4">
-                <Link to="/admin/users" className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    View Audit Logs
-                </Link>
-            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
+              {/* Stats */}
+              <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                <AdminStats stats={stats} />
+              </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-                <div className="space-y-4 mb-6">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold">File Access Requests</h2>
-                        <SearchBar onSearch={setSearchTerm} />
+              {/* Main Content */}
+              <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Recent Requests */}
+                <div className="lg:col-span-2">
+                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Requests</h2>
                     </div>
-                    <DateRangeFilter
-                        startDate={startDate}
-                        endDate={endDate}
-                        onStartDateChange={setStartDate}
-                        onEndDateChange={setEndDate}
-                    />
+                    <div className="p-6">
+                      {isLoading ? (
+                        <div className="flex justify-center py-8">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+                        </div>
+                      ) : recentRequests.length > 0 ? (
+                        <div className="space-y-4">
+                          {recentRequests.map((request, index) => (
+                           <RequestCard
+  key={request._id || index}
+  request={{
+    _id: request._id,
+    documentTitle: request.documentTitle,
+    officerName: request.officerName,
+    department: request.department,
+    status: request.status,
+    requestDate: request.requestDate,
+    documentType: request.documentType,
+    documentReference: request.documentReference,
+    fromDate: request.fromDate,
+    toDate: request.toDate,
+    processingNote: request.processingNote,
+    reasonForRejection: request.reasonForRejection,
+    additionalInfo: request.additionalInfo,
+    assignedTo: request.assignedTo,
+    dispatchOfficer: request.dispatchOfficer,
+    approvalOfficer: request.approvalOfficer,
+    deliveryStatus: request.deliveryStatus,
+    completionStatus: request.completionStatus,
+    approved_rejectedDate: request.approved_rejectedDate,
+    returnDate: request.returnDate,
+    email: request.email,
+    supervisorName: request.supervisorName
+  }}
+                              index={index}
+                              onSelect={handleSelectRequest}
+                              onAction={handleRequestAction}
+                              dispatchOfficers={dispatchOfficers}
+                              isAdmin={user?.role === 'approvalOfficer'}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500 dark:text-gray-400">No recent requests found.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                {isLoading ? <LoadingSpinner /> : (
-                    <div className="flex flex-col space-y-4">
-                        {paginatedRequests.map((request, index) => (
-                            <div
-                                key={request._id}
-                                className="border p-4 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out transform hover:scale-105 flex justify-between items-center cursor-pointer"
-                                onClick={() => setSelectedRequest(request)}
-                            >
-                                <div className="flex-1">
-                                    <span className="font-bold">
-                                        {index + 1}. {format(new Date(request.returnDate), 'dd MMMM, yyyy')}
-                                    </span>
-                                    <span className={`ml-2 px-2 py-1 rounded text-sm ${
-                                        (request.completionStatus === 'dispatched') ? 'bg-blue-100 text-blue-800' :
-                                        (request.completionStatus === 'returned') ? 'bg-purple-100 text-purple-800' :
-                                        (request.status === 'approved') ? 'bg-green-100 text-green-800' :
-                                        (request.status === 'rejected') ? 'bg-red-100 text-red-800' :
-                                        'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                        {request.completionStatus || request.status}
-                                    </span>
+                {/* Recent Activity */}
+                <div className="lg:col-span-1">
+                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden h-full">
+                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h2>
+                    </div>
+                    <div className="p-6">
+                      {recentActivity.length > 0 ? (
+                        <RecentActivity activities={recentActivity.slice(0, 5)} />
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                          No recent activities
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                                    <div className="mt-2">
-                                        <p>Officer: {request.officerName}</p>
-                                        <p>Supervisor: {request.supervisorName}</p>
-                                        <p>Email: {request.email}</p>
-                                    </div>
-                                </div>
-
-                                <select
-                                    value={request.completionStatus || request.status}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => {
-                                        const selectedValue = e.target.value;
-                                    
-                                        if (selectedValue === 'approved' || selectedValue === 'rejected') {
-                                            setPendingStatusChange({ id: request._id, newStatus: selectedValue });
-                                            setShowStatusModal(true);
-                                        } else if (selectedValue === 'returned') {
-                                            statusReturned(request._id, selectedValue);
-                                        } else if (selectedValue === 'dispatched') {
-                                            statusDispatched(request._id, selectedValue);
-                                        } else {
-                                            handleStatusChange(request._id, selectedValue);
-                                        }
-                                    }}                                    
-                                    className="p-2 border rounded"
-                                >
-                                    <option value="requested">Request</option>
-                                    <option value="approved">Approve</option>
-                                    <option value="rejected">Reject</option>
-                                    <option value="dispatched">Dispatch</option>
-                                    <option value="returned">Return</option>
-                                </select>
+              {/* Quick Actions */}
+              <div className="mt-6">
+                <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                  <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      {quickActions.map((action, index) => (
+                        <Link
+                          key={index}
+                          to={action.href}
+                          className={`p-4 rounded-lg ${action.bgColor} hover:opacity-90 transition-opacity`}
+                        >
+                          <div className="flex items-center">
+                            <div className={`p-2 rounded-lg ${action.iconColor} bg-opacity-20`}>
+                              <action.icon className="h-6 w-6" />
                             </div>
-                        ))}
+                            <div className="ml-4">
+                              <h3 className="text-sm font-medium text-gray-900 dark:text-white">{action.title}</h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-300">{action.description}</p>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
                     </div>
-                )}
-
-                <Pagination currentPage={currentPage} totalPages={Math.ceil(filteredRequests.length / ITEMS_PER_PAGE)} onPageChange={setCurrentPage} />
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {selectedRequest && (
-                <RequestModal request={selectedRequest} onClose={() => setSelectedRequest(null)} />
-            )}
-            {showStatusModal && pendingStatusChange && (
-            <StatusChangeModal
-                id={pendingStatusChange.id}
-                status={pendingStatusChange.newStatus}
-                onSubmit={handleStatusModalSubmit}
-                onClose={() => setShowStatusModal(false)}
-            />
-            )}  
-        </div>
+          </div>
+        </main>
+      </div>
     </div>
-    );
+  );
 };
 
 export default AdminDashboard;
->>>>>>> b56182316c66f8bac9af551575b1b95d19810da6

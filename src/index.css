@@ -1,28 +1,68 @@
 @import "tailwindcss";
 
+/* Design tokens: light and dark theme using CSS variables */
+:root {
+    --bg: #f7fbff;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --muted: #6b7280;
+    --primary: #6C5CE7; /* modern purple */
+    --accent: #00BFA6; /* teal accent */
+    --nav-bg: linear-gradient(90deg, #6C5CE7 0%, #00BFA6 100%);
+    --nav-text: #ffffff;
+    --card-shadow: 0 6px 18px rgba(18, 18, 18, 0.06);
+}
+
+[data-theme="dark"] {
+    --bg: #0b1220;
+    --surface: #071027;
+    --text: #e6eef8;
+    --muted: #9aa9bf;
+    --primary: #8b5cf6;
+    --accent: #00d0b2;
+    --nav-bg: linear-gradient(90deg, #0f172a 0%, #0b1220 100%);
+    --nav-text: #f8fafc;
+    --card-shadow: 0 6px 24px rgba(2, 6, 23, 0.6);
+}
+
 body {
+    background: var(--bg);
+    color: var(--text);
     padding-top: 4rem;
-  }
-  
-/* styles.css or NotificationBell.css */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Notification bell small helpers */
 .notification-bell {
     position: relative;
     cursor: pointer;
     margin-left: 20px;
     padding-right: 30px;
-    padding-bottom: 20px;
 }
 
 .notification-count {
     position: absolute;
-    top: -10px;
-    right: 15px;
-    background-color: red;
+    top: -6px;
+    right: 8px;
+    background-color: var(--accent);
     color: white;
     border-radius: 50%;
-    padding: 2px 2px;
-    font-size: 12px;
-    font-weight: bold;
-   
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 700;
 }
+
+/* Small utility for surfaces to use CSS variables */
+.surface {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--card-shadow);
+}
+
+/* Make links slightly softer using CSS variables */
+.nav-link-active {
+    background: rgba(255,255,255,0.06);
+}
+
 

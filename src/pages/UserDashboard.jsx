@@ -123,10 +123,10 @@ const UserDashboard = () => {
   };
 
   const getRequestStatus = (request) => {
-    if (request.processingStatus === 'completed') return { text: 'Completed', color: 'bg-green-100 text-green-800' };
-    if (request.processingStatus === 'in-progress') return { text: 'In Progress', color: 'bg-blue-100 text-blue-800' };
-    if (request.claimedBy) return { text: 'Claimed', color: 'bg-yellow-100 text-yellow-800' };
-    return { text: 'Available', color: 'bg-gray-100 text-gray-800' };
+    if (request.processingStatus === 'completed') return { text: 'Completed', className: 'badge badge-success' };
+    if (request.processingStatus === 'in-progress') return { text: 'In Progress', className: 'badge badge-info' };
+    if (request.claimedBy) return { text: 'Claimed', className: 'badge badge-warning' };
+    return { text: 'Available', className: 'badge' };
   };
 
   const getActionButton = (request) => {
@@ -150,7 +150,8 @@ const UserDashboard = () => {
             setShowModal(true);
           }}
           disabled={isLoading}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+          className="btn"
+          style={{ background: 'var(--success)', color: '#fff' }}
         >
           <Check size={16} />
           Mark Complete
@@ -166,7 +167,7 @@ const UserDashboard = () => {
             handleStartProcessing(request._id);
           }}
           disabled={isLoading}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+          className="btn btn-primary"
         >
           {isLoading ? <RefreshCw size={16} className="animate-spin" /> : <Play size={16} />}
           Start Processing
@@ -182,7 +183,7 @@ const UserDashboard = () => {
             handleClaimRequest(request._id);
           }}
           disabled={isLoading}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+          className="btn btn-accent"
         >
           {isLoading ? <RefreshCw size={16} className="animate-spin" /> : <FileText size={16} />}
           Claim Request
@@ -246,7 +247,7 @@ const UserDashboard = () => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="card p-6 rounded-lg">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <FileText className="h-6 w-6 text-blue-600" />
@@ -260,10 +261,10 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="card p-6 rounded-lg">
             <div className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Clock className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-linear-to-r rounded-lg" style={{ background: 'linear-gradient(135deg,var(--accent),var(--primary))' }}>
+                <Clock className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">My Claims</h3>
@@ -274,10 +275,10 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="card p-6 rounded-lg">
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Play className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-linear-to-r rounded-lg" style={{ background: 'linear-gradient(135deg,var(--primary),var(--accent))' }}>
+                <Play className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">In Progress</h3>
@@ -288,10 +289,10 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="card p-6 rounded-lg">
             <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-linear-to-r rounded-lg" style={{ background: 'linear-gradient(135deg,var(--accent),var(--primary))' }}>
+                <CheckCircle className="h-6 w-6 text-white" />
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">Completed</h3>
@@ -336,7 +337,7 @@ const UserDashboard = () => {
                 {/* Refresh Button */}
                 <button
                   onClick={loadDashboardData}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center space-x-2"
+                  className="btn btn-ghost flex items-center gap-2"
                 >
                   <RefreshCw size={16} />
                   <span>Refresh</span>
@@ -365,7 +366,7 @@ const UserDashboard = () => {
                           <h3 className="text-lg font-medium text-gray-900">
                             {request.documentTitle || 'Untitled Document'}
                           </h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                          <span className={`ml-2 ${status.className}`}>
                             {status.text}
                           </span>
                         </div>

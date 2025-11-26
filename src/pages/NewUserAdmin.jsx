@@ -56,8 +56,8 @@ const NewUserAdmin = () => {
     };
 
     return (
-        <div className="px-4 py-10 bg-gradient-to-br from-yellow-500 via-black to-white bg-opacity-0">
-            <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <div className="min-h-screen px-4 py-10" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,0.02), rgba(0,0,0,0.01))' }}>
+            <div className="max-w-md mx-auto surface p-6 rounded-lg shadow-lg">
                 <h1 className="text-2xl font-bold mb-6">Create New User Admin</h1>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-20">
                     <div>
@@ -121,13 +121,7 @@ const NewUserAdmin = () => {
                         )}
                     </div> */}
 
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-blue-300"
-                    >
-                        {isSubmitting ? 'Submitting...' : 'Create New User'}
-                    </button>
+                    <button type="submit" disabled={isSubmitting} className="btn btn-primary w-full">{isSubmitting ? 'Submitting...' : 'Create New User'}</button>
 
                     {submitStatus === 'success' && (
                         <div className="text-green-600 text-center">

@@ -5,12 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import RequestModal from '../components/RequestModal';  // Update the path as needed
 import adminAPI from '../services/adminAPI';
 import { 
-  LayoutDashboard, 
   Users, 
   FileText, 
-  Settings, 
-  LogOut,
-  X,
   BarChart2,
   CheckCircle,
   AlertCircle,
@@ -18,6 +14,8 @@ import {
   Clock,
   Activity,
   Edit,
+  Truck,
+  RefreshCw,
   Trash2,
   LogIn,
   XCircle
@@ -30,26 +28,23 @@ import RequestCard from '../components/admin/RequestCard';
 
 const AdminDashboard = () => {
   const { theme } = useTheme();
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dispatchOfficers, setDispatchOfficers] = useState([
-    { id: '1', name: 'John Doe' },
-    { id: '2', name: 'Jane Smith' },
-    { id: '3', name: 'Mike Johnson' },
-  ]);
+
   
   const [recentRequests, setRecentRequests] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
-  const [activeSessions, setActiveSessions] = useState(0);
+
   
   const [stats, setStats] = useState([
     { name: 'Total Requests', value: '0', change: '+0%', changeType: 'increase', icon: FileText },
-    { name: 'Pending Approval', value: '0', change: '+0%', changeType: 'increase', icon: Clock },
+    { name: 'Pending Requests', value: '0', change: '+0%', changeType: 'increase', icon: Clock },
+    { name: 'Approved Requests', value: '0', change: '+0%', changeType: 'increase', icon: CheckCircle },
+    { name: 'Rejected Requests', value: '0', change: '+0%', changeType: 'increase', icon: XCircle },
+    { name: 'Dispatched Requests', value: '0', change: '+0%', changeType: 'increase', icon: Truck },
+    { name: 'Returned Requests', value: '0', change: '+0%', changeType: 'increase', icon: RefreshCw },
     { name: 'Users', value: '0', change: '+0%', changeType: 'increase', icon: Users },
     { name: 'Avg. Response Time', value: '0h', change: '-0h', changeType: 'decrease', icon: Clock },
   ]);
@@ -82,82 +77,135 @@ const AdminDashboard = () => {
 
  // Fetch all necessary data on component mount
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch data in parallel with error handling for each request
-        const [usersResponse, recordsResponse, sessionsResponse, activitiesResponse] = await Promise.all([
-          adminAPI.getAllUsers().catch(e => {
-            console.error('Error fetching users:', e);
-            return { data: [] };
-          }),
-          adminAPI.getRecords().catch(e => {
-            console.error('Error fetching records:', e);
-            return { data: [] };
-          }),
-          adminAPI.getActiveSessions().catch(e => {
-            console.error('Error fetching sessions:', e);
-            return { count: 0 };
-          }),
-          // Use mock activities for now since the endpoint doesn't exist
-          Promise.resolve({ data: mockActivities }).catch(e => {
-            console.error('Error fetching activities:', e);
-            return { data: mockActivities }; // Fallback to mock data
-          })
-        ]);
+  
+const fetchDashboardData = async () => {
+  try {
+    setIsLoading(true);
+    
+    // Fetch all data in parallel
+    const [
+      usersResponse,
+      sessionsResponse,
+      activitiesResponse,
+      requestCounts,
+      recentRequestsResponse
+    ] = await Promise.all([
+      adminAPI.getAllUsers().catch(e => {
+        console.error('Error fetching users:', e);
+        return { data: [] };
+      }),
+      adminAPI.getActiveSessions().catch(e => {
+        console.error('Error fetching sessions:', e);
+        return { count: 0 };
+      }),
+      adminAPI.getActivities(5).catch(e => {
+       console.error('Error fetching activities:', e);
+       return { data: [] }; // Return empty array if there's an error
+       }),
+      // Get all request counts in a single call
+      adminAPI.getRequestCounts().catch(e => {
+        console.error('Error fetching request counts:', e);
+        return {
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          dispatched: 0,
+          returned: 0
+        };
+      }),
+      adminAPI.getRecords().catch(e => {
+        console.error('Error fetching recent requests:',e);
+        return {data:[]};
+      })
+    ]);
 
-        // Process users
-        const officers = (usersResponse.data || []).filter(user => user.role === 'dispatchOfficer');
-        setDispatchOfficers(officers);
-
-        // Process records (requests)
-        const records = Array.isArray(recordsResponse.data) ? recordsResponse.data : [];
-        setRecentRequests(records);
-        
-        // Process activities
-        const activities = activitiesResponse.data || [];
-        const formattedActivities = activities.map(activity => ({
-          id: activity._id || Math.random().toString(36).substr(2, 9),
-          user: activity.userId?.name || 'System',
-          action: activity.action || 'Unknown action',
-          details: activity.details || '',
-          time: formatTimeAgo(activity.createdAt),
-          status: getActivityStatus(activity.action),
-          icon: getActivityIcon(activity.action)
-        }));
-        
-        // Use mock data if no activities are returned
-        setRecentActivity(formattedActivities.length > 0 ? formattedActivities : mockActivities);
-
-        // Process active sessions
-        setActiveSessions(sessionsResponse.count || 0);
-
-        // Update stats
-        const activeUsers = Array.isArray(usersResponse.data) ? usersResponse.data.filter(u => u.status === 'active') : [];
-        const pendingRequests = records.filter(r => r.status === 'pending');
-        
-        setStats([
-          { ...stats[0], value: records.length.toString() },
-          { 
-            ...stats[1], 
-            value: activeUsers.length.toString()
-          },
-          { 
-            ...stats[2], 
-            value: pendingRequests.length.toString()
-          },
-          { ...stats[3], value: (sessionsResponse.count || 0).toString() }
-        ]);
-
-      } catch (error) {
-        console.error('Error in dashboard data processing:', error);
-        setError('Some dashboard data could not be loaded');
-        toast.error('Some dashboard data could not be loaded');
-      } finally {
-        setIsLoading(false);
+   // Update stats with the counts
+    setStats([
+      { 
+        name: 'Total Requests',
+        value: (requestCounts.pending + requestCounts.approved + requestCounts.rejected).toString(),
+        change: '0%',
+        changeType: 'increase',
+        icon: FileText
+      },
+      { 
+        name: 'Pending Requests',
+        value: requestCounts.pending.toString(),
+        change: '0%',
+        changeType: 'increase',
+        icon: Clock
+      },
+      { 
+        name: 'Approved Requests',
+        value: requestCounts.approved.toString(),
+        change: '0%',
+        changeType: 'increase',
+        icon: CheckCircle
+      },
+      { 
+        name: 'Rejected Requests',
+        value: requestCounts.rejected.toString(),
+        change: '0%',
+        changeType: 'increase',
+        icon: XCircle
+      },
+      { 
+        name: 'Dispatched Requests',
+        value: requestCounts.dispatched.toString(),
+        change: '0%',
+        changeType: 'increase',
+        icon: Truck
+      },
+      { 
+        name: 'Returned Requests',
+        value: requestCounts.returned.toString(),
+        change: '0%',
+        changeType: 'increase',
+        icon: RefreshCw
+      },
+      { 
+        name: 'Users',
+        value: usersResponse.data?.length?.toString() || '0',
+        change: '0%',
+        changeType: 'increase',
+        icon: Users
+      },
+      { 
+        name: 'Avg. Response Time',
+        value: '0h',
+        change: '0h',
+        changeType: 'decrease',
+        icon: Clock
       }
-    };
+    ]);
+
+    // After setting the stats, update recentRequests
+    if (recentRequestsResponse && recentRequestsResponse.data) {
+      setRecentRequests(recentRequestsResponse.data);
+    }
+
+    // Process activities
+    const activities = activitiesResponse.data || [];
+    const formattedActivities = activities.map(activity => ({
+      id: activity._id || Math.random().toString(36).substr(2, 9),
+      user: activity.userId?.name || 'System',
+      action: activity.action || 'Unknown action',
+      details: activity.details || '',
+      time: formatTimeAgo(activity.createdAt),
+      status: getActivityStatus(activity.action),
+      icon: getActivityIcon(activity.action)
+    }));
+
+    setRecentActivity(formattedActivities.length > 0 ? formattedActivities : mockActivities);
+
+  } catch (error) {
+    console.error('Error in dashboard data processing:', error);
+    setError('Some dashboard data could not be loaded');
+    toast.error('Some dashboard data could not be loaded');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     fetchDashboardData();
   }, [user?.name]); // Add user.name as dependency
@@ -215,40 +263,6 @@ const getActivityStatus = (action) => {
   return 'info';
 };
 
-const handleRequestAction = async (actionData) => {
-  try {
-    setIsLoading(true);
-    
-    const response = await adminAPI.updateRecord(actionData.requestId, {
-      status: actionData.action === 'approve' ? 'approved' : 'rejected',
-      assignedTo: actionData.dispatchOfficerId,
-      notes: actionData.reason,
-      updatedBy: user.id
-    });
-    
-    setRecentRequests(prev => 
-      prev.map(req => req.id === actionData.requestId ? response.data : req)
-    );
-
-    const actionText = actionData.action === 'approve' ? 'approved' : 'rejected';
-    const newActivity = {
-      id: Date.now(),
-      user: user?.name || 'Admin',
-      action: `${actionText} request #${actionData.requestId}`,
-      time: 'Just now',
-      icon: actionData.action === 'approve' ? CheckCircle : AlertCircle,
-      status: actionText === 'approved' ? 'success' : 'error'
-    };
-    
-    setRecentActivity(prev => [newActivity, ...prev].slice(0, 50));
-    toast.success(`Request ${actionText} successfully`);
-  } catch (error) {
-    console.error('Error updating request:', error);
-    toast.error(`Failed to update request: ${error.response?.data?.message || error.message}`);
-  } finally {
-    setIsLoading(false);
-  }
-};
 
   // Quick actions for the dashboard
   const quickActions = [

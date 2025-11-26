@@ -8,7 +8,7 @@ const adminAPI = {
   getAllUsers: async () => {
     const response = await axios.get(`${API_BASE_URL}/users/all-users`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
       }
     });
     return response.data;
@@ -17,39 +17,60 @@ const adminAPI = {
   getActiveSessions: async () => {
     const response = await axios.get(`${API_BASE_URL}/users/active-sessions`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
       }
     });
     return response.data;
   },
 
-  // Activities
-  // Get activity logs
-  getActivities: async (limit = 10) => {
+  // Request Statistics
+  getRequestCounts: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/activity-logs`, {
+      const response = await axios.get(`${API_BASE_URL}/requests/stats/counts`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        params: {
-          limit: limit
         }
       });
-      return { data: response.data.data || [] }; // Return the data array from the response
+      return response.data; // Returns { pending, approved, rejected, dispatched, returned }
     } catch (error) {
-      console.error('Error fetching activity logs:', error);
-      throw error;
+      console.error('Error fetching request counts:', error);
+      // Return default counts in case of error
+      return { 
+        pending: 0, 
+        approved: 0, 
+        rejected: 0, 
+        dispatched: 0, 
+        returned: 0 
+      };
     }
   },
 
-  getUserActivities: async (userId) => {
-    const response = await axios.get(`${API_BASE_URL}/activities/user/${userId}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    return response.data;
-  },
+ // Activities
+    getActivities: async (limit = 10) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/activity-logs`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}` 
+        },
+        params: {
+            limit: limit
+        }
+        });
+        return { data: response.data.data || [] };
+    } catch (error) {
+        console.error('Error fetching activity logs:', error);
+        throw error;
+    }
+    },
+
+//   getUserActivities: async (userId) => {
+//     const response = await axios.get(`${API_BASE_URL}/activities/user/${userId}`, {
+//       headers: {
+//         'Authorization': `Bearer ${localStorage.getItem('token')}` 
+//       }
+//     });
+//     return response.data;
+//   },
 
   // Records (Requests)
   getRecords: async () => {
@@ -72,6 +93,7 @@ const adminAPI = {
     }
   },
 
+
   updateRecord: async (id, data) => {
     const response = await axios.put(`${API_BASE_URL}/records/${id}`, data, {
       headers: {
@@ -87,7 +109,7 @@ const adminAPI = {
     const response = await axios.get(`${API_BASE_URL}/reports`, {
       params,
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
       }
     });
     return response.data;

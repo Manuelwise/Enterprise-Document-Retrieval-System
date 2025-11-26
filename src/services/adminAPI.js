@@ -92,6 +92,24 @@ const adminAPI = {
       return { data: [] }; // Return empty array if there's an error
     }
   },
+  getAllRequests: async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/requests`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+          sort: '-requestDate' // Sort by requestDate in descending order
+        }
+      });
+      // The API returns an array directly, so we wrap it in a data property
+      // to maintain consistency with other API responses
+      return { data: Array.isArray(response.data) ? response.data : [] };
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+      return { data: [] }; // Return empty array if there's an error
+    }
+  },
 
 
   updateRecord: async (id, data) => {

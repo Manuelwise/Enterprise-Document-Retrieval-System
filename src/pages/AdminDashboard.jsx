@@ -308,7 +308,7 @@ const handleSelectRequest = (request) => {
 
 
   return (
-    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-1 overflow-hidden">
 
         {/* Main content */}

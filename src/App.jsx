@@ -16,6 +16,7 @@ import AuditLogs from './pages/AuditLogs';
 import UsersGrid from './pages/UsersGrid';
 import Reports from './pages/Reports';
 import { UserProvider } from './context/UserContext';
+import RequestsPage from './components/admin/RequestsPage';
 
 const App = () => {
   return (
@@ -55,6 +56,15 @@ const App = () => {
                   element={
                     <ProtectedRoute requiredRole="approval_officer">
                       <AuditLogs />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/admin/requests"
+                  element={
+                    <ProtectedRoute requiredRole="approval_officer">
+                      <RequestsPage />
                     </ProtectedRoute>
                   }
                 />

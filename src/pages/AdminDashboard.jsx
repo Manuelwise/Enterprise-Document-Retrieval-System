@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import RequestModal from '../components/RequestModal';  // Update the path as needed
 import adminAPI from '../services/adminAPI';
 import { 
   LayoutDashboard, 
@@ -23,11 +24,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AuditLogs from './AuditLogs';
-import UsersGrid from './UsersGrid';
-import AdminRequests from './AdminRequests';
-import AdminSidebar from '../components/admin/AdminSidebar';
-import AdminHeader from '../components/admin/AdminHeader';
 import AdminStats from '../components/admin/AdminStats';
 import RecentActivity from '../components/admin/RecentActivity';
 import RequestCard from '../components/admin/RequestCard';
@@ -57,6 +53,10 @@ const AdminDashboard = () => {
     { name: 'Users', value: '0', change: '+0%', changeType: 'increase', icon: Users },
     { name: 'Avg. Response Time', value: '0h', change: '-0h', changeType: 'decrease', icon: Clock },
   ]);
+
+
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Mock activities data (fallback)
   const mockActivities = [
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
         ]);
 
         // Process users
-        const officers = (usersResponse.data || []).filter(user => user.role === 'officer');
+        const officers = (usersResponse.data || []).filter(user => user.role === 'dispatchOfficer');
         setDispatchOfficers(officers);
 
         // Process records (requests)
@@ -275,94 +275,28 @@ const handleRequestAction = async (actionData) => {
       href: '/admin/activities',
       iconColor: 'text-blue-500',
       bgColor: 'bg-blue-50 dark:bg-blue-900/30'
-    }
+    },
+    { 
+    title: 'All Requests', 
+    description: 'View all document requests', 
+    icon: FileText,
+    href: '/admin/requests',
+    iconColor: 'text-purple-500',
+    bgColor: 'bg-purple-50 dark:bg-purple-900/30'
+  }
   ];
 
-  // Toggle mobile menu
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
 
-  // Handle user logout
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      toast.error('Failed to log out');
-    }
-  };
+const handleSelectRequest = (request) => {
+  setSelectedRequest(request);
+  setIsModalOpen(true);
+};
 
-  // Handle request selection
-  const handleSelectRequest = (request) => {
-    // Navigate to the request details page with the request ID
-    navigate(`/admin/requests/${request.id}`);
-  };
 
-  // Navigation items
-  const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, current: location.pathname === '/admin/dashboard' },
-  ];
 
   return (
     <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="flex flex-1 overflow-hidden">
-        {/* Mobile sidebar */}
-        <div className={`fixed inset-0 z-40 lg:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={toggleMobileMenu}></div>
-          <div className="relative flex-1 flex flex-col w-80 max-w-xs bg-white dark:bg-gray-800">
-            <div className="absolute top-0 right-0 -mr-14 p-1">
-              <button
-                type="button"
-                className="flex items-center justify-center h-12 w-12 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                onClick={toggleMobileMenu}
-              >
-                <X className="h-6 w-6 text-white" />
-                <span className="sr-only">Close sidebar</span>
-              </button>
-            </div>
-            <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-              <div className="flex-shrink-0 flex items-center px-4">
-                <h1 className="text-xl font-bold dark:text-white">Admin Panel</h1>
-              </div>
-              <nav className="mt-5 px-2 space-y-1">
-                {navigation.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`${
-                        isActive
-                          ? 'bg-gray-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
-                      } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <item.icon
-                        className={`mr-3 flex-shrink-0 h-6 w-6 ${
-                          isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
-                        }`}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-            <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Main content */}
         <main className="flex-1 overflow-y-auto focus:outline-none bg-gray-50 dark:bg-gray-900">
@@ -379,93 +313,14 @@ const handleRequestAction = async (actionData) => {
               <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
                 <AdminStats stats={stats} />
               </div>
-
-              {/* Main Content */}
-              <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Recent Requests */}
-                <div className="lg:col-span-2">
-                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                      <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Requests</h2>
-                    </div>
-                    <div className="p-6">
-                      {isLoading ? (
-                        <div className="flex justify-center py-8">
-                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-                        </div>
-                      ) : recentRequests.length > 0 ? (
-                        <div className="space-y-4">
-                          {recentRequests.map((request, index) => (
-                           <RequestCard
-  key={request._id || index}
-  request={{
-    _id: request._id,
-    documentTitle: request.documentTitle,
-    officerName: request.officerName,
-    department: request.department,
-    status: request.status,
-    requestDate: request.requestDate,
-    documentType: request.documentType,
-    documentReference: request.documentReference,
-    fromDate: request.fromDate,
-    toDate: request.toDate,
-    processingNote: request.processingNote,
-    reasonForRejection: request.reasonForRejection,
-    additionalInfo: request.additionalInfo,
-    assignedTo: request.assignedTo,
-    dispatchOfficer: request.dispatchOfficer,
-    approvalOfficer: request.approvalOfficer,
-    deliveryStatus: request.deliveryStatus,
-    completionStatus: request.completionStatus,
-    approved_rejectedDate: request.approved_rejectedDate,
-    returnDate: request.returnDate,
-    email: request.email,
-    supervisorName: request.supervisorName
-  }}
-                              index={index}
-                              onSelect={handleSelectRequest}
-                              onAction={handleRequestAction}
-                              dispatchOfficers={dispatchOfficers}
-                              isAdmin={user?.role === 'approvalOfficer'}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500 dark:text-gray-400">No recent requests found.</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Recent Activity */}
-                <div className="lg:col-span-1">
-                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden h-full">
-                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                      <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h2>
-                    </div>
-                    <div className="p-6">
-                      {recentActivity.length > 0 ? (
-                        <RecentActivity activities={recentActivity.slice(0, 5)} />
-                      ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                          No recent activities
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
+              {/* Dashboard Actions */}
               <div className="mt-6">
                 <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
                     <h2 className="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h2>
                   </div>
                   <div className="p-6">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       {quickActions.map((action, index) => (
                         <Link
                           key={index}
@@ -483,6 +338,67 @@ const handleRequestAction = async (actionData) => {
                           </div>
                         </Link>
                       ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Main Content */}
+              <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Recent Requests */}
+                <div className="lg:col-span-2">
+                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Requests</h2>
+                    </div>
+                    <div className="p-6">
+                      {isLoading ? (
+                        <div className="flex justify-center py-8">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+                        </div>
+                      ) : recentRequests.length > 0 ? (
+                        <div className="space-y-4">
+                          {recentRequests.map((request, index) => (
+                           <RequestCard
+                            key={request._id || index}
+                            request={request}
+                            index={index}
+                            onSelect={handleSelectRequest}
+                          />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500 dark:text-gray-400">No recent requests found.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {isModalOpen && selectedRequest && (
+                  <RequestModal 
+                    request={selectedRequest} 
+                    onClose={() => {
+                      setIsModalOpen(false);
+                      setSelectedRequest(null);
+                    }} 
+                  />
+                )}
+
+                {/* Recent Activity */}
+                <div className="lg:col-span-1">
+                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden h-full">
+                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h2>
+                    </div>
+                    <div className="p-6">
+                      {recentActivity.length > 0 ? (
+                        <RecentActivity activities={recentActivity.slice(0, 5)} />
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                          No recent activities
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

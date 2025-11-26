@@ -18,8 +18,8 @@ const Footer = () => {
                 </defs>
               </svg>
               <div>
-                <h3 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>Enterprise Sample Management</h3>
-                <p className="text-sm" style={{ color: 'var(--muted)' }}>Modern, secure, and auditable file access management.</p>
+                <h3 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>Enterprise Document Retrieval System</h3>
+                <p className="text-sm" style={{ color: 'var(--muted)' }}>Modern, secure, and auditable document access management.</p>
               </div>
             </div>
           </div>

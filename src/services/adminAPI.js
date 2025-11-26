@@ -48,12 +48,12 @@ const adminAPI = {
  // Activities
     getActivities: async (limit = 10) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/activity-logs`, {
+        const response = await axios.get(`${API_BASE_URL}/activity`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}` 
         },
         params: {
-            limit: limit
+            limit: 5
         }
         });
         return { data: response.data.data || [] };

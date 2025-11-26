@@ -188,9 +188,8 @@ const fetchDashboardData = async () => {
     const activities = activitiesResponse.data || [];
     const formattedActivities = activities.map(activity => ({
       id: activity._id || Math.random().toString(36).substr(2, 9),
-      user: activity.userId?.name || 'System',
+      user: activity.details.username|| 'Approval Officer',
       action: activity.action || 'Unknown action',
-      details: activity.details || '',
       time: formatTimeAgo(activity.createdAt),
       status: getActivityStatus(activity.action),
       icon: getActivityIcon(activity.action)
@@ -255,10 +254,10 @@ const getActivityStatus = (action) => {
   const actionLower = action.toLowerCase();
   
   // Map common action types to statuses
-  if (actionLower.includes('error') || actionLower.includes('fail')) return 'error';
+  // if (actionLower.includes('error') || actionLower.includes('fail')) return 'error';
   if (actionLower.includes('login') || actionLower.includes('approve') || actionLower.includes('success')) return 'success';
   if (actionLower.includes('delete') || actionLower.includes('reject')) return 'error';
-  if (actionLower.includes('create') || actionLower.includes('update')) return 'info';
+  // if (actionLower.includes('create') || actionLower.includes('update')) return 'info';
   
   return 'info';
 };

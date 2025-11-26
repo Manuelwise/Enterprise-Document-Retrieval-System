@@ -1,4 +1,4 @@
-# Enterprise Sample Management System
+# Enterprise Document Retrieval System
 Note!!!
 Decontructing an incomplete project frontend and recontructing it to suit enterprise level. Changes are weekly and project is still under consrtucting. Please leave any issues if you feel a better approach can be taken on any aspect of the work. Contructive Criticism is always welcome.
 

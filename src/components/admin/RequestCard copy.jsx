@@ -81,7 +81,7 @@ const RequestCard = ({
   const showActions = isAdmin && ['pending', 'in-progress'].includes(status);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-4 border border-gray-200 dark:border-gray-700 transition-all hover:shadow-md">
+    <div className="surface rounded-lg shadow overflow-hidden mb-4 border border-gray-200 dark:border-gray-700 transition-all hover:shadow-md">
       <div 
         className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         onClick={() => onSelect && onSelect(request)}

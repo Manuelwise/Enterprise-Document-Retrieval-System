@@ -308,27 +308,27 @@ const handleSelectRequest = (request) => {
 
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen">
       <div className="flex flex-1 overflow-hidden">
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto focus:outline-none bg-gray-50 dark:bg-gray-900">
+        <main className="flex-1 overflow-y-auto focus:outline-none">
           <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <div className="flex justify-between items-center">
+            <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
+              <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
                
               </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
+            <div className="px-4 mx-auto mt-6 max-w-7xl sm:px-6 md:px-8">
               {/* Stats */}
-              <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+              <div className="overflow-hidden rounded-lg shadow surface">
                 <AdminStats stats={stats} />
               </div>
               {/* Dashboard Actions */}
               <div className="mt-6">
-                <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                <div className="overflow-hidden rounded-lg shadow surface">
                   <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
                     <h2 className="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h2>
                   </div>
@@ -342,7 +342,7 @@ const handleSelectRequest = (request) => {
                         >
                           <div className="flex items-center">
                             <div className={`p-2 rounded-lg ${action.iconColor} bg-opacity-20`}>
-                              <action.icon className="h-6 w-6" />
+                              <action.icon className="w-6 h-6" />
                             </div>
                             <div className="ml-4">
                               <h3 className="text-sm font-medium text-gray-900 dark:text-white">{action.title}</h3>
@@ -356,17 +356,17 @@ const handleSelectRequest = (request) => {
                 </div>
               </div>
               {/* Main Content */}
-              <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-3">
                 {/* Recent Requests */}
                 <div className="lg:col-span-2">
-                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <div className="overflow-hidden rounded-lg shadow surface">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
                       <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Requests</h2>
                     </div>
                     <div className="p-6">
                       {isLoading ? (
                         <div className="flex justify-center py-8">
-                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+                          <div className="w-10 h-10 border-b-2 border-blue-500 rounded-full animate-spin"></div>
                         </div>
                       ) : recentRequests.length > 0 ? (
                         <div className="space-y-4">
@@ -380,7 +380,7 @@ const handleSelectRequest = (request) => {
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-8">
+                        <div className="py-8 text-center">
                           <p className="text-gray-500 dark:text-gray-400">No recent requests found.</p>
                         </div>
                       )}
@@ -400,15 +400,15 @@ const handleSelectRequest = (request) => {
 
                 {/* Recent Activity */}
                 <div className="lg:col-span-1">
-                  <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden h-full">
-                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <div className="h-full overflow-hidden rounded-lg shadow surface">
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
                       <h2 className="text-lg font-medium text-gray-900 dark:text-white">Recent Activity</h2>
                     </div>
                     <div className="p-6">
                       {recentActivity.length > 0 ? (
                         <RecentActivity activities={recentActivity.slice(0, 5)} />
                       ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                        <p className="py-4 text-sm text-center text-gray-500 dark:text-gray-400">
                           No recent activities
                         </p>
                       )}

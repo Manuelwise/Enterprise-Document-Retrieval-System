@@ -151,7 +151,7 @@ const UserDashboard = () => {
           }}
           disabled={isLoading}
           className="btn"
-          style={{ background: 'var(--success)', color: '#fff' }}
+          style={{ background: 'var(--success)', color: 'var(--nav-text)' }}
         >
           <Check size={16} />
           Mark Complete
@@ -263,8 +263,8 @@ const UserDashboard = () => {
 
           <div className="card p-6 rounded-lg">
             <div className="flex items-center">
-              <div className="p-3 bg-linear-to-r rounded-lg" style={{ background: 'linear-gradient(135deg,var(--accent),var(--primary))' }}>
-                <Clock className="h-6 w-6 text-white" />
+              <div className="p-3 bg-linear-to-r rounded-lg gradient-primary" style={{ color: 'var(--nav-text)' }}>
+                <Clock className="h-6 w-6" />
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">My Claims</h3>
@@ -277,8 +277,8 @@ const UserDashboard = () => {
 
           <div className="card p-6 rounded-lg">
             <div className="flex items-center">
-              <div className="p-3 bg-linear-to-r rounded-lg" style={{ background: 'linear-gradient(135deg,var(--primary),var(--accent))' }}>
-                <Play className="h-6 w-6 text-white" />
+              <div className="p-3 bg-linear-to-r rounded-lg gradient-primary" style={{ color: 'var(--nav-text)' }}>
+                <Play className="h-6 w-6" />
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">In Progress</h3>
@@ -291,8 +291,8 @@ const UserDashboard = () => {
 
           <div className="card p-6 rounded-lg">
             <div className="flex items-center">
-              <div className="p-3 bg-linear-to-r rounded-lg" style={{ background: 'linear-gradient(135deg,var(--accent),var(--primary))' }}>
-                <CheckCircle className="h-6 w-6 text-white" />
+              <div className="p-3 bg-linear-to-r rounded-lg gradient-primary" style={{ color: 'var(--nav-text)' }}>
+                <CheckCircle className="h-6 w-6" />
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-500">Completed</h3>

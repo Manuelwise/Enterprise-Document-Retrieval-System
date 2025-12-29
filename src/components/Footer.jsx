@@ -40,7 +40,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="border-t mt-8 pt-4 text-center" style={{ borderColor: 'rgba(0,0,0,0.06)', color: 'var(--muted)' }}>
+        <div className="border-t mt-8 pt-4 text-center" style={{ borderColor: 'var(--neutral-200)', color: 'var(--muted)' }}>
           <p>&copy; {new Date().getFullYear()} Enterprise Sample Management. All rights reserved.</p>
         </div>
       </div>

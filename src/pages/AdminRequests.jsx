@@ -156,7 +156,7 @@ const AdminRequests = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 space-y-4">
+      <div className="surface shadow rounded-lg p-4 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -199,7 +199,7 @@ const AdminRequests = () => {
       </div>
 
       {/* Request List */}
-      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+      <div className="surface shadow overflow-hidden sm:rounded-lg">
         {isLoading ? (
           <div className="flex justify-center items-center p-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -245,7 +245,7 @@ const AdminRequests = () => {
 
       {/* Pagination - Add if needed */}
       {filteredRequests.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 sm:px-6 rounded-b-lg">
+        <div className="flex items-center justify-between px-4 py-3 surface border-t border-gray-200 dark:border-gray-700 sm:px-6 rounded-b-lg">
           <div className="flex-1 flex justify-between sm:hidden">
             <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
               Previous

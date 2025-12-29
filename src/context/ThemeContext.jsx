@@ -12,7 +12,14 @@ export const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    // Keep the CSS variable-based theme and Tailwind's `dark:` class in sync
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
     try {
       localStorage.setItem('theme', theme);
     } catch (e) {}

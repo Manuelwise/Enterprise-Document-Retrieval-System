@@ -106,13 +106,13 @@ const AuditLogs = () => {
     const actionTypes = [...new Set(logs.map(log => log.action))];
 
     const LoadingIndicator = () => (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+        <div className="min-h-screen p-8">
             <div className="max-w-7xl mx-auto">
                 <div className="animate-pulse space-y-6">
                     <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
                     <div className="space-y-4">
                         {[...Array(5)].map((_, i) => (
-                            <div key={i} className="h-24 bg-white dark:bg-gray-800 rounded-lg shadow p-6"></div>
+                            <div key={i} className="h-24 surface rounded-lg shadow p-6"></div>
                         ))}
                     </div>
                 </div>
@@ -121,8 +121,8 @@ const AuditLogs = () => {
     );
 
     const ErrorIndicator = () => (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-8">
-            <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center">
+        <div className="min-h-screen flex items-center justify-center p-8">
+            <div className="max-w-md w-full surface rounded-xl shadow-lg p-6 text-center">
                 <FiAlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Error Loading Logs</h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
@@ -140,7 +140,7 @@ const AuditLogs = () => {
     if (error) return <ErrorIndicator />;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="mb-8">
@@ -161,7 +161,7 @@ const AuditLogs = () => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mb-8">
+                <div className="surface rounded-xl shadow-sm p-6 mb-8">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                         <div className="relative flex-1 max-w-md">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -247,7 +247,7 @@ const AuditLogs = () => {
                             currentLogs.map((log, index) => (
                                 <div 
                                     key={index}
-                                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 overflow-hidden"
+                                    className="surface rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 overflow-hidden"
                                     onClick={() => setSelectedRequest(log.requestId)}
                                 >
                                     <div className="p-6">

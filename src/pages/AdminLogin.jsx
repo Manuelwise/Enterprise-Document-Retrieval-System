@@ -65,9 +65,9 @@ const AdminLogin = () => {
 
     // Add animated shapes
     const shapes = [
-      { size: 300, color: 'rgba(11, 95, 255, 0.6)', top: '10%', left: '10%', animation: 'float 25s ease-in-out infinite' },
-      { size: 400, color: 'rgba(0, 191, 166, 0.5)', bottom: '10%', right: '10%', animation: 'float 30s ease-in-out infinite reverse' },
-      { size: 200, color: 'rgba(156, 39, 176, 0.6)', top: '50%', left: '50%', animation: 'float 20s ease-in-out infinite' },
+      { size: 300, color: 'var(--shape-1)', top: '10%', left: '10%', animation: 'float 25s ease-in-out infinite' },
+      { size: 400, color: 'var(--shape-2)', bottom: '10%', right: '10%', animation: 'float 30s ease-in-out infinite reverse' },
+      { size: 200, color: 'var(--shape-3)', top: '50%', left: '50%', animation: 'float 20s ease-in-out infinite' },
     ];
 
     shapes.forEach((shape, i) => {
@@ -109,18 +109,18 @@ const AdminLogin = () => {
               Designed for enterprise teams to manage requests and approvals efficiently.
             </p>
             <div className="hidden lg:block space-y-4">
-              <div className="flex items-center space-x-4 p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-sm">
+              <div className="flex items-center space-x-4 p-4 surface backdrop-blur-sm rounded-lg shadow-sm">
                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 <div>
                   <h3 className="font-medium">Secure Access</h3>
-                  <p className="text-sm text-white dark:text-gray-400">Enterprise-grade security</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">Enterprise-grade security</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-sm">
+              <div className="flex items-center space-x-4 p-4 surface backdrop-blur-sm rounded-lg shadow-sm">
                 <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                 <div>
                   <h3 className="font-medium">Real-time Updates</h3>
-                  <p className="text-sm text-white dark:text-gray-400">Stay in sync with your team</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-400">Stay in sync with your team</p>
                 </div>
               </div>
             </div>
@@ -188,9 +188,9 @@ const AdminLogin = () => {
                               </svg>
                             )}
                           </div>
-                          <span className="font-medium text-gray-900 dark:text-white">{option.label}</span>
+                          <span className="font-medium text-black dark:text-white">{option.label}</span>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 ml-8">
+                        <p className="text-sm text-black dark:text-gray-400 ml-8">
                           {option.value === 'approval_officer' 
                             ? 'Review and approve sample requests' 
                             : 'Manage sample dispatching and tracking'}
@@ -272,7 +272,7 @@ const AdminLogin = () => {
                       <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                      <span className="px-2 surface text-gray-500 dark:text-gray-400">
                         Need help?
                       </span>
                     </div>

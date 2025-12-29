@@ -6,7 +6,7 @@ const Input = ({ label, children, error }) => (
   <div>
     <label className="block mb-2 font-medium" style={{ color: 'var(--text)' }}>{label}</label>
     {children}
-    {error && <div className="text-sm mt-1" style={{ color: '#ef4444' }}>{error}</div>}
+    {error && <div className="text-sm mt-1" style={{ color: 'var(--danger)' }}>{error}</div>}
   </div>
 );
 
@@ -80,7 +80,7 @@ const RequestForm = () => {
   };
 
   return (
-    <div className="min-h-screen py-12" style={{ background: 'linear-gradient(180deg, rgba(108,92,231,0.03), rgba(0,191,166,0.02))' }}>
+    <div className="min-h-screen py-12 subtle-page-bg">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           <div className="lg:col-span-2 surface rounded-xl p-8">
@@ -103,8 +103,8 @@ const RequestForm = () => {
               </div>
             </div>
             <div className="md:col-span-2">
-              <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden mb-4">
-                <div className="h-full bg-linear-to-r" style={{ width: `${(step / 3) * 100}%`, background: 'linear-gradient(90deg,var(--primary),var(--accent))' }}></div>
+                <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden mb-4">
+                <div className="h-full bg-linear-to-r gradient-primary" style={{ width: `${(step / 3) * 100}%` }}></div>
               </div>
             </div>
             <div className="md:col-span-2" style={{ display: step === 1 ? 'block' : 'none' }}>
@@ -223,8 +223,8 @@ const RequestForm = () => {
             </div>
           </form>
 
-          {submitStatus === 'success' && <div className="text-center mt-4" style={{ color: '#059669' }}>Request submitted successfully!</div>}
-          {submitStatus === 'error' && <div className="text-center mt-4" style={{ color: '#ef4444' }}>An error occurred. Please try again.</div>}
+          {submitStatus === 'success' && <div className="text-center mt-4" style={{ color: 'var(--success)' }}>Request submitted successfully!</div>}
+          {submitStatus === 'error' && <div className="text-center mt-4" style={{ color: 'var(--danger)' }}>An error occurred. Please try again.</div>}
         </div>
 
         {isConfirming && formData && (
@@ -239,8 +239,8 @@ const RequestForm = () => {
                 <p><strong>From:</strong> {formData.fromDate} <strong>To:</strong> {formData.toDate}</p>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={confirmSubmit} disabled={isSubmitting} className="px-4 py-2 rounded font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>{isSubmitting ? 'Submitting...' : 'Yes, submit'}</button>
-                <button onClick={() => setIsConfirming(false)} className="px-4 py-2 rounded border" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>Cancel</button>
+                <button onClick={confirmSubmit} disabled={isSubmitting} className="px-4 py-2 rounded font-medium" style={{ background: 'var(--accent)', color: 'var(--nav-text)' }}>{isSubmitting ? 'Submitting...' : 'Yes, submit'}</button>
+                <button onClick={() => setIsConfirming(false)} className="px-4 py-2 rounded border" style={{ borderColor: 'var(--neutral-200)' }}>Cancel</button>
               </div>
             </div>
           </div>

@@ -8,9 +8,7 @@
     --muted: #6b7280;
     --primary: #6C5CE7; /* modern purple */
     --accent: #00BFA6; /* teal accent */
-    --nav-bg: linear-gradient(90deg, #6C5CE7 0%, #00BFA6 100%);
-    --nav-text: #ffffff;
-    --card-shadow: 0 6px 18px rgba(18, 18, 18, 0.06);
+
 }
 
 [data-theme="dark"] {
@@ -20,9 +18,7 @@
     --muted: #9aa9bf;
     --primary: #8b5cf6;
     --accent: #00d0b2;
-    --nav-bg: linear-gradient(90deg, #0f172a 0%, #0b1220 100%);
-    --nav-text: #f8fafc;
-    --card-shadow: 0 6px 24px rgba(2, 6, 23, 0.6);
+
 }
 
 body {

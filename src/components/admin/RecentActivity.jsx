@@ -17,7 +17,7 @@ const statusColors = {
 
 const RecentActivity = ({ activities }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <div className="surface rounded-lg shadow overflow-hidden">
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {activities.map((activity) => {
           const Icon = statusIcons[activity.status] || Info;

@@ -63,10 +63,10 @@ const AdminStats = ({ stats = [] }) => {
           const iconBgColor = getIconBgColor(stat.name);
           const displayValue = formatValue(stat);
           
-          return (
+            return (
             <div
               key={stat.name || index}
-              className="relative bg-white dark:bg-gray-800 pt-5 px-4 pb-6 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700"
+              className="relative surface pt-5 px-4 pb-6 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700"
             >
               <dt className="flex flex-col">
                 <div className={`absolute ${iconBgColor} rounded-md p-3`}>

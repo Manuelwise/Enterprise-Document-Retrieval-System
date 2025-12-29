@@ -107,7 +107,7 @@ const AdminRequestsPage = () => {
   }, [searchTerm, statusFilter, requests]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -121,7 +121,7 @@ const AdminRequestsPage = () => {
         </div>
 
         {/* Filters */}
-        <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <div className="mb-6 surface rounded-lg shadow p-4">
           <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -153,7 +153,7 @@ const AdminRequestsPage = () => {
         </div>
 
         {/* Requests List */}
-        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+        <div className="surface shadow overflow-hidden rounded-lg">
           {isLoading ? (
             <div className="flex justify-center items-center p-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>

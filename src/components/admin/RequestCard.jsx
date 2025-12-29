@@ -21,9 +21,9 @@ const RequestCard = ({
 
   const status = getStatus();
 
-  return (
+    return (
     <div 
-      className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-3 border border-gray-200 dark:border-gray-700 transition-all hover:shadow-md cursor-pointer"
+      className="surface rounded-lg shadow overflow-hidden mb-3 border border-gray-200 dark:border-gray-700 transition-all hover:shadow-md cursor-pointer"
       onClick={() => onSelect && onSelect(request)}
     >
       <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">

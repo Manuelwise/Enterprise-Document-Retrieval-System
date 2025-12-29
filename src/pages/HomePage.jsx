@@ -5,8 +5,8 @@ import featureImage from '../assets/image/dashboard2.webp';
 
 const FeatureCard = ({ Icon, title, description }) => (
   <div className="p-6 rounded-xl surface transition-transform transform hover:-translate-y-1 hover:elevated cursor-pointer">
-    <div className="flex items-center justify-center w-12 h-12 rounded-lg mb-4" style={{ background: 'linear-gradient(135deg,var(--primary),var(--accent))' }}>
-      <Icon size={20} color="#fff" />
+    <div className="flex items-center justify-center w-12 h-12 rounded-lg mb-4" style={{ background: 'linear-gradient(135deg,var(--primary),var(--accent))', color: 'var(--nav-text)' }}>
+      <Icon size={20} style={{ color: 'var(--nav-text)' }} />
     </div>
     <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text)' }}>{title}</h3>
     <p className="text-sm" style={{ color: 'var(--muted)' }}>{description}</p>

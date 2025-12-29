@@ -56,7 +56,7 @@ const NewUserAdmin = () => {
     };
 
     return (
-        <div className="min-h-screen px-4 py-10" style={{ background: 'linear-gradient(180deg, rgba(15,23,42,0.02), rgba(0,0,0,0.01))' }}>
+        <div className="min-h-screen px-4 py-10 subtle-page-bg">
             <div className="max-w-md mx-auto surface p-6 rounded-lg shadow-lg">
                 <h1 className="text-2xl font-bold mb-6">Create New User Admin</h1>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-20">

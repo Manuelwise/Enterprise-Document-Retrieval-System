@@ -43,6 +43,17 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+  /* Navigation and card shadow tokens */
+  --nav-bg: linear-gradient(90deg, #6C5CE7 0%, #00BFA6 100%);
+  --nav-text: #ffffff;
+  --card-shadow: 0 6px 18px rgba(18, 18, 18, 0.06);
+  /* Gradient tokens */
+  --gradient-primary: linear-gradient(90deg, var(--primary), var(--accent));
+  --subtle-page-bg: linear-gradient(180deg, rgba(15,23,42,0.02), rgba(0,0,0,0.01));
+  /* Decorative shape colors (used by AdminLogin animated shapes) */
+  --shape-1: rgba(11, 95, 255, 0.6);
+  --shape-2: rgba(0, 191, 166, 0.5);
+  --shape-3: rgba(156, 39, 176, 0.6);
 }
 
 /* Dark theme overrides (apply with data-theme="dark" on <html>) */
@@ -69,6 +80,24 @@
   --shadow-sm: 0 1px 2px rgba(2,6,23,0.6);
   --shadow-md: 0 8px 20px rgba(2,6,23,0.6);
   --shadow-lg: 0 18px 40px rgba(2,6,23,0.7);
+  --nav-bg: linear-gradient(90deg, #0f172a 0%, #0b1220 100%);
+  --nav-text: #f8fafc;
+  --card-shadow: 0 6px 24px rgba(2, 6, 23, 0.6);
+  --gradient-primary: linear-gradient(90deg, var(--primary), var(--accent));
+  --subtle-page-bg: linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.01));
+  --shape-1: rgba(90, 168, 255, 0.6);
+  --shape-2: rgba(30, 215, 184, 0.45);
+  --shape-3: rgba(156, 39, 176, 0.5);
+}
+
+/* Utility class for subtle page backgrounds using theme tokens */
+.subtle-page-bg {
+  background: var(--subtle-page-bg);
+}
+
+/* Gradient helper class */
+.gradient-primary {
+  background: var(--gradient-primary) !important;
 }
 
 /* Base page styles */
@@ -117,7 +146,7 @@ input:focus,select:focus,textarea:focus{box-shadow:var(--shadow-sm);outline:none
 .muted{color:var(--muted)}
 .label{font-size:var(--text-sm);color:var(--muted);display:block;margin-bottom:6px}
 .kbd{background:rgba(15,23,42,0.04);padding:4px 8px;border-radius:6px;font-size:0.875rem;min-width:32px;text-align:center}
-.kbd.elevated{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;box-shadow:var(--shadow-md)}
+.kbd.elevated{background:linear-gradient(90deg,var(--primary),var(--accent));color:var(--nav-text);box-shadow:var(--shadow-md)}
 
 /* Badges */
 .badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:9999px;font-weight:600;font-size:0.875rem}

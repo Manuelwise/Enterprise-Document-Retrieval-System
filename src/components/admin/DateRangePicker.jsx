@@ -32,7 +32,7 @@ const DateRangePicker = ({ onSelect, className = '' }) => {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-50 border border-gray-200 dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-72 surface rounded-lg shadow-lg p-4 z-50 border border-gray-200 dark:border-gray-700">
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
